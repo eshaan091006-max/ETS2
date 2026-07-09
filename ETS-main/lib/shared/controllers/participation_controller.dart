@@ -59,14 +59,12 @@ class ParticipationController {
         }
       }
 
-      if (response.isNotEmpty) {
-        _participations.clear();
-        _participations.addAll(
-          response.map((json) => Participation.fromJson(Map<String, dynamic>.from(json))).toList(),
-        );
-        // Save to cache
-        await CacheManager.cacheData(CacheManager.keyParticipations, participationToJson(_participations));
-      }
+      _participations.clear();
+      _participations.addAll(
+        response.map((json) => Participation.fromJson(Map<String, dynamic>.from(json))).toList(),
+      );
+      // Save to cache
+      await CacheManager.cacheData(CacheManager.keyParticipations, participationToJson(_participations));
     } catch (e) {
       print("Error loading participations: $e");
     } finally {

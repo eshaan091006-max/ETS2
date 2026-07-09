@@ -35,6 +35,7 @@ class _DepartmentsPageState extends State<DepartmentsPage> {
           'indian performing arts',
           'world performing arts',
           'entertainment, theatricals, contests and workshops',
+          'crossovers',
         ];
 
         departments.sort((a, b) {

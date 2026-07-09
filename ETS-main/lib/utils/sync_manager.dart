@@ -82,8 +82,7 @@ class SyncManager {
           } else if (action == 'update') {
             if (table == 'participations') {
               await supabase.from(table).update(data)
-                .eq('contingent_id', data['contingent_id'])
-                .eq('event_id', data['event_id']);
+                .eq('participation_id', data['participation_id']);
             } else if (data.containsKey('id')) {
               await supabase.from(table).update(data).eq('id', data['id']);
             } else if (data.containsKey('event_id')) { // For event
