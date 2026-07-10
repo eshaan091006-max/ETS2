@@ -68,6 +68,22 @@ class _ContingentManagementPageState extends State<ContingentManagementPage> {
               ),
             ),
 
+            if (PageRefreshController.initialLoadCompleted)
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Showing ${filteredContingents.length} of ${_contingentController.contingents.length} contingents',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+
             /// Contingents List
             Expanded(
               child: RefreshIndicator(

@@ -60,7 +60,11 @@ class _ScoresPageState extends State<ScoresPage> {
   List<String> getEventTypes() {
     final types =
         _eventController.events
-            .map((e) => (e.eventType == 1) ? 'Flagship' : 'Classic')
+            .map((e) {
+              if (e.eventType == 1) return 'Flagship';
+              if (e.eventType == 0) return 'Classic';
+              return 'None';
+            })
             .toSet()
             .toList();
     types.sort();
@@ -85,7 +89,7 @@ class _ScoresPageState extends State<ScoresPage> {
                   selectedDepartment == 'All' || deptCode == selectedDepartment;
               final matchesType =
                   selectedEventType == 'All' ||
-                  ["Classic", "Flagship"][event.eventType] == selectedEventType;
+                  (event.eventType == 1 ? "Flagship" : (event.eventType == 0 ? "Classic" : "None")) == selectedEventType;
 
               return matchesDept && matchesType;
             }).toList();

@@ -34,7 +34,7 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
   String selectedType = 'All';
 
   List<String> departments = ['All'];
-  List<String> types = ['All', 'Classic', 'Flagship'];
+  List<String> types = ['All', 'Classic', 'Flagship', 'None'];
 
   @override
   void initState() {
@@ -80,7 +80,8 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
       final typeMatch =
           selectedType == 'All' ||
           (selectedType == 'Classic' && event.eventType == 0) ||
-          (selectedType == 'Flagship' && event.eventType == 1);
+          (selectedType == 'Flagship' && event.eventType == 1) ||
+          (selectedType == 'None' && event.eventType == 2);
 
       return deptMatch && typeMatch;
     }).toList();

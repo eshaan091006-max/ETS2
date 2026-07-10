@@ -153,8 +153,12 @@ Future<void> showEventModal(
                     buildDropdown<int>(
                       label: 'Event Type',
                       value: eventType,
-                      items: const [0, 1],
-                      getLabel: (val) => val == 0 ? 'Classic' : 'Flagship',
+                      items: const [0, 1, 2],
+                      getLabel: (val) {
+                        if (val == 0) return 'Classic';
+                        if (val == 1) return 'Flagship';
+                        return 'None';
+                      },
                       onChanged: (val) {
                         setState(() {
                           eventType = val!;

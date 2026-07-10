@@ -50,29 +50,30 @@ class _EventCardState extends State<EventCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// Event Type Tag
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: (event.eventType == 0
-                        ? AppColors.primary
-                        : AppColors.accent)
-                    .withAlpha(51),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                event.eventType == 0 ? "Classic Event" : "Flagship Event",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                  color:
-                      event.eventType == 0
+            if (event.eventType == 0 || event.eventType == 1) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: (event.eventType == 0
                           ? AppColors.primary
-                          : AppColors.accent,
+                          : AppColors.accent)
+                      .withAlpha(51),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  event.eventType == 0 ? "Classic Event" : "Flagship Event",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color:
+                        event.eventType == 0
+                            ? AppColors.primary
+                            : AppColors.accent,
+                  ),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 6),
+              const SizedBox(height: 6),
+            ],
 
             /// Header Row
             Row(

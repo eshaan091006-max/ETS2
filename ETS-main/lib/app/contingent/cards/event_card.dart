@@ -44,28 +44,29 @@ class EventCard extends StatelessWidget {
 
                 const SizedBox(width: 8), // spacing between text and chip
                 /// Flagship / Classic Tag
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color:
-                        isFlagship
-                            ? Colors.amber.shade800
-                            : Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    isFlagship ? "FLAGSHIP" : "CLASSIC",
-                    style: GoogleFonts.poppins(
-                      color: isFlagship ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                      letterSpacing: 1.2,
+                if (event.eventType == 0 || event.eventType == 1)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          isFlagship
+                              ? Colors.amber.shade800
+                              : Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      isFlagship ? "FLAGSHIP" : "CLASSIC",
+                      style: GoogleFonts.poppins(
+                        color: isFlagship ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        letterSpacing: 1.2,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/app/admin/cards/event_card.dart';
 import 'package:malhar_ets/app/admin/event/contingents_participated_page.dart';
 import 'package:malhar_ets/app/admin/modals/event_modal.dart';
@@ -29,7 +30,7 @@ class _EventManagementPageState extends State<EventManagementPage> {
   String selectedType = 'All';
 
   List<String> departments = ['All'];
-  final List<String> types = ['All', 'Classic', 'Flagship'];
+  final List<String> types = ['All', 'Classic', 'Flagship', 'None'];
 
   @override
   void initState() {
@@ -62,7 +63,8 @@ class _EventManagementPageState extends State<EventManagementPage> {
       final typeMatch =
           selectedType == 'All' ||
           (selectedType == 'Classic' && event.eventType == 0) ||
-          (selectedType == 'Flagship' && event.eventType == 1);
+          (selectedType == 'Flagship' && event.eventType == 1) ||
+          (selectedType == 'None' && event.eventType == 2);
       return deptMatch && typeMatch;
     }).toList();
   }
@@ -137,71 +139,90 @@ class _EventManagementPageState extends State<EventManagementPage> {
               valueListenable: PageRefreshController.refreshNotifier,
               builder: (_, __, ___) {
                 final events = filteredEvents();
-                return !PageRefreshController.initialLoadCompleted
-                    ? const ShimmerSkeletonList(itemCount: 3, cardHeight: 165.0)
-                    : events.isEmpty
-                        ? SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            child: Container(
-                              height: MediaQuery.of(context).size.height * 0.6,
-                              alignment: Alignment.center,
-                          child: EmptyStateWidget(
-                            title: 'No Events Found',
-                            subtitle: 'Try adjusting your type or department filters.',
-                            icon: Icons.event_busy,
-                            action: TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  selectedDept = 'All';
-                                  selectedType = 'All';
-                                });
-                              },
-                              child: const Text(
-                                "Reset Filters",
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
+                if (!PageRefreshController.initialLoadCompleted) {
+                  return const ShimmerSkeletonList(itemCount: 3, cardHeight: 165.0);
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Text(
+                        'Showing ${events.length} of ${_eventController.events.length} events',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: events.isEmpty
+                          ? SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              child: Container(
+                                height: MediaQuery.of(context).size.height * 0.6,
+                                alignment: Alignment.center,
+                                child: EmptyStateWidget(
+                                  title: 'No Events Found',
+                                  subtitle: 'Try adjusting your type or department filters.',
+                                  icon: Icons.event_busy,
+                                  action: TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        selectedDept = 'All';
+                                        selectedType = 'All';
+                                      });
+                                    },
+                                    child: const Text(
+                                      "Reset Filters",
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: events.length,
-                        itemBuilder: (context, index) {
-                          final event = events[index];
-                          return AnimatedCardWrapper(
-                            key: ValueKey(event.eventId),
-                            child: GestureDetector(
-                              onDoubleTap: () {
-                                Navigator.of(context).push(
-                                  LiquidPageRoute(
-                                    page: ContingentsParticipatedPage(event: event),
+                            )
+                          : ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: events.length,
+                              itemBuilder: (context, index) {
+                                final event = events[index];
+                                return AnimatedCardWrapper(
+                                  key: ValueKey(event.eventId),
+                                  child: GestureDetector(
+                                    onDoubleTap: () {
+                                      Navigator.of(context).push(
+                                        LiquidPageRoute(
+                                          page: ContingentsParticipatedPage(event: event),
+                                        ),
+                                      );
+                                    },
+                                    child: EventCard(
+                                      event: event,
+                                      onEdit:
+                                          () => showEventModal(
+                                            context,
+                                            event: event,
+                                            onSubmit: (updatedEvent, links) async {
+                                              await EventController().updateEvent(context, updatedEvent);
+                                              await FormLinkController().syncFormLinks(context, updatedEvent.eventId, links);
+                                            },
+                                          ),
+                                      onDelete: () {
+                                        EventController().deleteEvent(context, event.eventId);
+                                      },
+                                    ),
                                   ),
                                 );
                               },
-                            child: EventCard(
-                              event: event,
-                              onEdit:
-                                  () => showEventModal(
-                                    context,
-                                    event: event,
-                                    onSubmit: (updatedEvent, links) async {
-                                      await EventController().updateEvent(context, updatedEvent);
-                                      await FormLinkController().syncFormLinks(context, updatedEvent.eventId, links);
-                                    },
-                                  ),
-                              onDelete: () {
-                                EventController().deleteEvent(context, event.eventId);
-                              },
                             ),
-                          ),
-                        );
-                      },
-                    );
-            },
+                    ),
+                  ],
+                );
+              },
           ),
         ),
       ),
