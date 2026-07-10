@@ -115,6 +115,50 @@ class _EventCardState extends State<EventCard> {
             const SizedBox(height: 10),
 
             _buildDetailRow("Department", deptName),
+            if (event.collabDeptIds.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Crossover Domains: ",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Expanded(
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: event.collabDeptIds.map((deptId) {
+                          final dept = deptCont.getDepartmentById(deptId);
+                          if (dept == null) return const SizedBox.shrink();
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withAlpha(25),
+                              border: Border.all(color: AppColors.primary.withAlpha(80), width: 1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              dept.name,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             _buildDetailRow(
               "Highest Marks",
               event.highestMarks == -1

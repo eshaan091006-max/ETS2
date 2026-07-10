@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:malhar_ets/app/contingent/cards/form_link_card.dart';
 import 'package:malhar_ets/shared/controllers/form_link_controller.dart';
+import 'package:malhar_ets/shared/controllers/department_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -69,6 +70,35 @@ class EventCard extends StatelessWidget {
                   ),
               ],
             ),
+
+            /// Collaborating domains display
+            if (event.collabDeptIds.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: event.collabDeptIds.map((deptId) {
+                  final dept = DepartmentController().getDepartmentById(deptId);
+                  if (dept == null) return const SizedBox.shrink();
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: isFlagship ? Colors.white24 : AppColors.primary.withAlpha(25),
+                      border: Border.all(color: isFlagship ? Colors.white30 : AppColors.primary.withAlpha(80), width: 1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      dept.name,
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: isFlagship ? Colors.white70 : AppColors.primary,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
 
             const SizedBox(height: 6),
 

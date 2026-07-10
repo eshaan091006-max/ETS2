@@ -63,7 +63,7 @@ Future<void> showEventModal(
   DateTime selectedDate = event?.dateTime ?? DateTime(2006, 2, 10, 15, 43, 0);
   int eventType = event?.eventType ?? 0;
   int elimsType = event?.elimsType ?? 0;
-
+  List<int> collabDeptIds = List<int>.from(event?.collabDeptIds ?? []);
   final isUpdating = event != null;
 
   await showDialog(
@@ -98,6 +98,44 @@ Future<void> showEventModal(
                         });
                       },
                     ),
+
+                    if (selectedDepartment.name.toLowerCase() == 'crossovers') ...[
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Crossover Domains',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...deptCont.departments
+                          .where((d) => d.name.toLowerCase() != 'crossovers')
+                          .map((d) {
+                        final isSelected = collabDeptIds.contains(d.id);
+                        return CheckboxListTile(
+                          title: Text(d.name, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                          subtitle: Text(d.code, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                          value: isSelected,
+                          activeColor: AppColors.primary,
+                          contentPadding: EdgeInsets.zero,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (bool? checked) {
+                            setState(() {
+                              if (checked == true) {
+                                collabDeptIds.add(d.id);
+                              } else {
+                                collabDeptIds.remove(d.id);
+                              }
+                            });
+                          },
+                        );
+                      }),
+                    ],
 
                     
                     // Links Section
@@ -262,6 +300,7 @@ Future<void> showEventModal(
                         departmentId: selectedDepartment.id,
                         eventType: eventType,
                         elimsType: elimsType,
+                        collabDeptIds: selectedDepartment.name.toLowerCase() == 'crossovers' ? collabDeptIds : [],
                       ),
                       finalLinks,
                     );

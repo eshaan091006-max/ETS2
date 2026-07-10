@@ -17,6 +17,7 @@ class Event {
   int eventType;
   String formLink;
   int elimsType;
+  List<int> collabDeptIds;
 
   Event({
     this.eventId = -1,
@@ -27,6 +28,7 @@ class Event {
     this.eventType = 0,
     this.formLink = "https://docs.google.com/forms",
     this.elimsType = 0,
+    this.collabDeptIds = const [],
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -51,6 +53,7 @@ class Event {
       eventType: json['event_type'] ?? 0,
       formLink: json['form_link'] ?? '',
       elimsType: json['elims_type'] ?? 0,
+      collabDeptIds: List<int>.from(json['collab_dept_ids'] ?? []),
     );
   }
 
@@ -63,6 +66,7 @@ class Event {
     "department_id": departmentId,
     "event_type": eventType,
     "elims_type": elimsType,
+    "collab_dept_ids": collabDeptIds,
   };
 
   Map<String, dynamic> toInsertJson() => {
@@ -74,6 +78,7 @@ class Event {
     "department_id": departmentId,
     "event_type": eventType,
     "elims_type": elimsType,
+    "collab_dept_ids": collabDeptIds,
   };
 
   String get dateString =>
