@@ -1,33 +1,6 @@
--- 1. Enable extensions
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-CREATE EXTENSION IF NOT EXISTS pgjwt;
+-- Run this SQL in your Supabase SQL Editor to make both Admin and Contingent logins case-insensitive
 
--- Drop hmac functions to avoid return/signature changes conflict
-DROP FUNCTION IF EXISTS public.hmac(text, text, text);
-DROP FUNCTION IF EXISTS public.hmac(bytea, bytea, text);
-
--- Create a wrapper for hmac in public schema to delegate to extensions.hmac
--- This resolves pgjwt signature verification pointing to public.hmac
-CREATE OR REPLACE FUNCTION public.hmac(data text, key text, type text)
-RETURNS bytea
-LANGUAGE sql
-SECURITY DEFINER
-SET search_path = public, extensions
-AS $$
-  SELECT extensions.hmac(data::bytea, key::bytea, type);
-$$;
-
--- Create table to store secrets securely (fallback for permission-restricted databases)
-CREATE TABLE IF NOT EXISTS public.vault_settings (
-    key text PRIMARY KEY,
-    value text NOT NULL
-);
-
--- Enable RLS to prevent direct reading or editing of secrets
-ALTER TABLE public.vault_settings ENABLE ROW LEVEL SECURITY;
-
--- 2. Update Admin Login RPC to return JWT
-DROP FUNCTION IF EXISTS login_admin_rpc(text, text);
+-- 1. Update Admin Login RPC to be case-insensitive on username
 CREATE OR REPLACE FUNCTION login_admin_rpc(input_username text, input_password text)
 RETURNS TABLE (username text, is_volunteer boolean, token text) 
 LANGUAGE plpgsql
@@ -72,8 +45,8 @@ BEGIN
 END;
 $$;
 
--- 3. Update Contingent Login RPC to return JWT
-DROP FUNCTION IF EXISTS login_contingent_rpc(text, text);
+
+-- 2. Update Contingent Login RPC to be case-insensitive on contingent_code
 CREATE OR REPLACE FUNCTION login_contingent_rpc(input_code text, input_password text)
 RETURNS TABLE (
     contingent_id int, 
@@ -118,7 +91,6 @@ BEGIN
                 floor(extract(epoch from now() + interval '7 days'))::bigint as exp
         ) r;
 
-        -- Make sure these return columns match the RETURNS TABLE definition above exactly
         RETURN QUERY SELECT 
             cont_record.contingent_id::int, 
             cont_record.contingent_code::text, 

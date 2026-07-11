@@ -57,7 +57,7 @@
     BEGIN
         SELECT * INTO admin_record 
         FROM public.admins 
-        WHERE admins.username = input_username AND admins.password = input_password;
+        WHERE LOWER(admins.username) = LOWER(input_username) AND admins.password = input_password;
 
         IF FOUND THEN
             -- Try fetching from vault_settings table first, fallback to postgres setting
@@ -109,7 +109,7 @@
     BEGIN
         SELECT * INTO cont_record 
         FROM public.contingents 
-        WHERE contingents.contingent_code::text = input_code AND contingents.password = input_password;
+        WHERE LOWER(contingents.contingent_code::text) = LOWER(input_code) AND contingents.password = input_password;
 
         IF FOUND THEN
             -- Try fetching from vault_settings table first, fallback to postgres setting
