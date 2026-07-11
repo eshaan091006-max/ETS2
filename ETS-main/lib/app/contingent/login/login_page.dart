@@ -72,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     SizedBox(height: isKeyboardOpen ? 15.0 : (MediaQuery.of(context).padding.top + kToolbarHeight + 10)),
                     Text(
-                      "Contingent/PRNC Login",
+                      "Contingent Login",
                       style: GoogleFonts.montserrat(
                         fontSize: isKeyboardOpen ? 20 : 26,
                         fontWeight: FontWeight.bold,
