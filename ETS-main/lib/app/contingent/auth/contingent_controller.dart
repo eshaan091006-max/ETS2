@@ -24,6 +24,8 @@ class ContingentController {
         // Set the custom JWT session for Supabase
         if (contingentData.containsKey('token') && contingentData['token'] != null) {
           await SessionManager.restoreCustomJWTSession(contingentData['token']);
+          // Wait for the restored session to propagate to the Supabase client headers
+          await Future.delayed(const Duration(milliseconds: 300));
         }
 
         return {

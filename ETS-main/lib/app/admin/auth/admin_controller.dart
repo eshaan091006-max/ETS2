@@ -7,22 +7,24 @@ class AdminController {
     String password,
   ) async {
     try {
-      final response = await Supabase.instance.client.rpc(
-        'login_admin_rpc',
-        params: {
-          'input_username': username,
-          'input_password': password,
-        },
-      ) as List<dynamic>;
+      final response =
+          await Supabase.instance.client.rpc(
+                'login_admin_rpc',
+                params: {
+                  'input_username': username,
+                  'input_password': password,
+                },
+              )
+              as List<dynamic>;
 
       if (response.isNotEmpty) {
         final adminData = Map<String, dynamic>.from(response.first);
-        
+
         // Set the custom JWT session for Supabase
         if (adminData.containsKey('token') && adminData['token'] != null) {
           await SessionManager.restoreCustomJWTSession(adminData['token']);
         }
-        
+
         return {
           "success": true,
           "message": 'Admin Login Successful for $username!',

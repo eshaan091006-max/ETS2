@@ -33,6 +33,8 @@ class _ConnectorState extends State<Connector> {
       if (token != null && token.isNotEmpty) {
         try {
           await SessionManager.restoreCustomJWTSession(token);
+          // Wait for the restored session to propagate to the Supabase client headers
+          await Future.delayed(const Duration(milliseconds: 300));
         } catch (e) {
           debugPrint("Failed to restore Supabase session on startup: $e");
         }
