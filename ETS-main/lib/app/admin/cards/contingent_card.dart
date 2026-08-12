@@ -51,15 +51,43 @@ class ContingentCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: Text(
-                            contingent.contingentCode,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                              letterSpacing: 0.5,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  contingent.contingentCode,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
+                                    letterSpacing: 0.5,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withAlpha(30),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: AppColors.primary.withAlpha(80),
+                                  ),
+                                ),
+                                child: Text(
+                                  'ID: ${contingent.contingentId}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Row(

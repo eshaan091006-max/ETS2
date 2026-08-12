@@ -123,6 +123,46 @@ class ParticipationController {
     }
   }
 
+  // 🔹 ENTRY NUMBERING
+  // A contingent may be entered into the same event more than once (two teams,
+  // two performances). Those rows are told apart by an entry number derived
+  // from their order, not stored in the database.
+
+  /// All participations for a contingent+event pair, oldest first.
+  List<Participation> entriesFor(int contingentId, int eventId) {
+    final entries =
+        _participations
+            .where((p) => p.contingentId == contingentId && p.eventId == eventId)
+            .toList();
+    entries.sort((a, b) => a.participationId.compareTo(b.participationId));
+    return entries;
+  }
+
+  int entryCountFor(int contingentId, int eventId) =>
+      entriesFor(contingentId, eventId).length;
+
+  /// 1-based position of [p] among its contingent's entries in the same event.
+  ///
+  /// Returns 0 when it is the only entry, which is the signal to display the
+  /// name plain, with no number attached.
+  int entryNumberOf(Participation p) {
+    final entries = entriesFor(p.contingentId, p.eventId);
+    if (entries.length < 2) return 0;
+    final index = entries.indexWhere(
+      (e) => e.participationId == p.participationId,
+    );
+    return index == -1 ? 0 : index + 1;
+  }
+
+  /// " 2" for the second entry, "" when it is the only one.
+  ///
+  /// The single place the display convention lives — change it here and every
+  /// label follows.
+  String suffixFor(Participation p) {
+    final number = entryNumberOf(p);
+    return number == 0 ? '' : ' $number';
+  }
+
   // 🔹 CREATE
   Future<bool> createParticipation(
     BuildContext context,
@@ -152,10 +192,31 @@ class ParticipationController {
         AppFeedback.showError(context, "Failed to create participation.");
         return false;
       }
+    } on PostgrestException catch (e) {
+      AppFeedback.showError(context, _createErrorMessage(e));
+      return false;
     } catch (e) {
       AppFeedback.showError(context, "Error creating participation: $e");
       return false;
     }
+  }
+
+  /// A duplicate-key rejection here means the database still enforces one row
+  /// per contingent+event, so repeat entries cannot be stored until that
+  /// constraint is dropped. Say so plainly instead of dumping the exception.
+  String _createErrorMessage(PostgrestException e) {
+    if (e.code == '23505') {
+      // participation_id is generated client-side as max+1, so two admins
+      // saving at the same moment collide on the primary key. That is a
+      // retry, not a schema problem — don't confuse the two.
+      if (e.message.contains('pkey')) {
+        return "Another admin saved at the same moment. Please try again.";
+      }
+      return "The database is blocking a second entry for this contingent in "
+          "this event. The unique constraint on participations must be dropped "
+          "before repeat entries can be saved.";
+    }
+    return "Error creating participation: ${e.message}";
   }
 
   Future<bool> createMultipleParticipation(
@@ -192,6 +253,9 @@ class ParticipationController {
         AppFeedback.showError(context, "Failed to create participations.");
         return false;
       }
+    } on PostgrestException catch (e) {
+      AppFeedback.showError(context, _createErrorMessage(e));
+      return false;
     } catch (e) {
       AppFeedback.showError(context, "Error creating participations: $e");
       return false;

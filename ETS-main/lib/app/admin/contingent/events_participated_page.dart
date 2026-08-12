@@ -101,15 +101,11 @@ class _EventsParticipatedPageState extends State<EventsParticipatedPage> {
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.textWhite,
             onPressed: () {
-              List<int> existingEventIds =
-                  participations.map((p) => p.eventId).toList();
-              List<Event> availableEvents =
-                  _eventController.events
-                      .where((e) => !existingEventIds.contains(e.eventId))
-                      .toList();
+              // Every event stays selectable: picking one the contingent is
+              // already in adds a further entry rather than being blocked.
               showAddEventBottomSheet(
                 context,
-                availableEvents,
+                _eventController.events,
                 widget.contingent,
               );
             },

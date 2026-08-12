@@ -196,7 +196,12 @@ class _ScoresPageState extends State<ScoresPage> {
                           final e =
                               _eventController.getEventById(p.eventId) ??
                               Event(dateTime: DateTime.now());
-                          return ParticipationCard(participation: p, event: e);
+                          return ParticipationCard(
+                            participation: p,
+                            event: e,
+                            entryNumber:
+                                ParticipationController().entryNumberOf(p),
+                          );
                         },
                       ),
               ),

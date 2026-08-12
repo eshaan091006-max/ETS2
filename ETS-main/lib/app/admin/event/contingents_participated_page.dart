@@ -67,11 +67,13 @@ class _ContingentsParticipatedPageState
           color: AppColors.textWhite,
 
           onPressed: () {
-            List<Contingent> c =
-                _contingentController.contingents
-                    .where((c) => !contingents.contains(c))
-                    .toList();
-            showAddContingentBottomSheet(context, c, widget.event);
+            // Every contingent stays selectable: picking one that already
+            // participates adds a further entry rather than being blocked.
+            showAddContingentBottomSheet(
+              context,
+              _contingentController.contingents,
+              widget.event,
+            );
           },
           icon: Icon(Icons.add, semanticLabel: 'Add', size: 40),
         ),

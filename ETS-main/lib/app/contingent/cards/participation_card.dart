@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:malhar_ets/app/contingent/cards/event_card.dart';
 import 'package:malhar_ets/helpers/neon_container.dart';
+import 'package:malhar_ets/helpers/widgets.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 
@@ -8,10 +9,16 @@ class ParticipationCard extends StatelessWidget {
   final Participation participation;
   final Event event;
 
+  /// Which of the contingent's entries in this event this card shows.
+  ///
+  /// 0 means it is the only entry, so no label is drawn.
+  final int entryNumber;
+
   const ParticipationCard({
     super.key,
     required this.participation,
     required this.event,
+    this.entryNumber = 0,
   });
 
   double _getPercentage() {
@@ -42,6 +49,13 @@ class ParticipationCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// Entry label, shown only when this event holds more than one
+            /// of the contingent's entries
+            if (entryNumber > 0) ...[
+              buildEntryChip(entryNumber),
+              const SizedBox(height: 10),
+            ],
+
             /// Marks Scored Box
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

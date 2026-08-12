@@ -13,6 +13,7 @@ import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/form_link_controller.dart';
+import 'package:malhar_ets/shared/controllers/participation_controller.dart';
 import 'package:malhar_ets/helpers/page_transitions.dart';
 
 class GroupedParticipationCard extends StatefulWidget {
@@ -47,13 +48,21 @@ class _GroupedParticipationCardState extends State<GroupedParticipationCard> {
   @override
   void didUpdateWidget(covariant GroupedParticipationCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If the list of participations changed and doesn't contain the selected one anymore,
-    // reset to the first one.
-    if (!widget.participations.contains(_selectedParticipation)) {
-      if (widget.participations.isNotEmpty) {
-        _selectedParticipation = widget.participations.first;
-      }
-    }
+    _syncSelection();
+  }
+
+  /// Re-point the selection at the refreshed object carrying the same id.
+  ///
+  /// loadParticipations() rebuilds every Participation on each refresh, so
+  /// matching by object identity would snap the dropdown back to the first
+  /// item every time realtime fires — which, with repeat entries, silently
+  /// swaps which entry's marks the admin is looking at.
+  void _syncSelection() {
+    if (widget.participations.isEmpty) return;
+    _selectedParticipation = widget.participations.firstWhere(
+      (p) => p.participationId == _selectedParticipation.participationId,
+      orElse: () => widget.participations.first,
+    );
   }
 
   @override
@@ -62,11 +71,9 @@ class _GroupedParticipationCardState extends State<GroupedParticipationCard> {
       return const SizedBox.shrink();
     }
 
-    // Double check if selected participation is still in the widget's participations list
-    // (needed if list shrunk during rebuild/deletion)
-    if (!widget.participations.contains(_selectedParticipation)) {
-      _selectedParticipation = widget.participations.first;
-    }
+    // Double check the selection still resolves against the current list
+    // (needed if it shrank during rebuild/deletion)
+    _syncSelection();
 
     final EventController eventController = EventController();
     final Event currentEvent = eventController.getEventById(_selectedParticipation.eventId) ??
@@ -139,9 +146,14 @@ class _GroupedParticipationCardState extends State<GroupedParticipationCard> {
                   items: widget.participations.map((Participation p) {
                     final ev = eventController.getEventById(p.eventId) ??
                         Event(dateTime: DateTime.now());
+                    // Without the suffix, repeat entries in the same event
+                    // render as identical, unpickable-apart options.
                     return DropdownMenuItem<Participation>(
                       value: p,
-                      child: Text(ev.eventName),
+                      child: Text(
+                        '${ev.eventName}'
+                        '${ParticipationController().suffixFor(p)}',
+                      ),
                     );
                   }).toList(),
                   onChanged: (Participation? newPart) {
@@ -171,7 +183,9 @@ class _GroupedParticipationCardState extends State<GroupedParticipationCard> {
             /// Event Section
             _buildExpandableTile(
               title: "Event Details",
-              subtitle: currentEvent.eventName,
+              subtitle:
+                  '${currentEvent.eventName}'
+                  '${ParticipationController().suffixFor(_selectedParticipation)}',
               isExpanded: _eventExpanded,
               onToggle: () => setState(() => _eventExpanded = !_eventExpanded),
               tileColor: AppColors.primary.withAlpha(25),

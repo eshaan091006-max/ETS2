@@ -41,3 +41,49 @@ Widget buildDropdown({
 
   return expanded ? Expanded(child: dropdownWidget) : dropdownWidget;
 }
+
+/// Pill showing how many entries already exist for a contingent+event pair.
+///
+/// Selecting such a row in an add-sheet appends a further entry rather than
+/// replacing anything, so the count tells the admin what they are adding to.
+Widget buildEntryCountBadge(int count) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+    decoration: BoxDecoration(
+      color: AppColors.accent.withAlpha(38),
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: AppColors.accent.withAlpha(128)),
+    ),
+    child: Text(
+      count == 1 ? '1 entry' : '$count entries',
+      style: GoogleFonts.poppins(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        color: AppColors.accent,
+      ),
+    ),
+  );
+}
+
+/// Label telling a contingent's repeat entries in one event apart.
+///
+/// [entryNumber] of 0 means this is the only entry, which renders nothing.
+Widget buildEntryChip(int entryNumber) {
+  if (entryNumber == 0) return const SizedBox.shrink();
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(
+      color: AppColors.primary.withAlpha(38),
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: AppColors.primary.withAlpha(128)),
+    ),
+    child: Text(
+      'Entry $entryNumber',
+      style: GoogleFonts.poppins(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        color: AppColors.primary,
+      ),
+    ),
+  );
+}

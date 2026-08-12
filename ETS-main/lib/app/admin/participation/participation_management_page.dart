@@ -136,6 +136,7 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
     rows.add([
       "Contingent Code",
       "Event Name",
+      "Entry",
       "Department",
       "Marks Scored",
       "Status"
@@ -148,10 +149,14 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
 
       final dept = DepartmentController().getDepartmentById(event.departmentId.toInt());
       final isMarked = p.marksScored != -1 ? "Marked" : "Unmarked";
-      
+      // A sole entry reports as 1 so the column is always numeric and pivotable,
+      // even though the UI renders it without a number.
+      final entryNumber = _participationController.entryNumberOf(p);
+
       rows.add([
         contingent.contingentCode,
         event.eventName,
+        entryNumber == 0 ? 1 : entryNumber,
         dept?.name ?? '',
         p.marksScored,
         isMarked

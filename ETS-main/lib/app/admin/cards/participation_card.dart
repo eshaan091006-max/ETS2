@@ -12,6 +12,7 @@ import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/form_link_controller.dart';
+import 'package:malhar_ets/shared/controllers/participation_controller.dart';
 import 'package:malhar_ets/helpers/page_transitions.dart';
 
 class ParticipationCard extends StatefulWidget {
@@ -99,7 +100,9 @@ class _ParticipationCardState extends State<ParticipationCard> {
             /// Contingent Section
             _buildExpandableTile(
               title: "Contingent",
-              subtitle: widget.contingent.contingentCode,
+              subtitle:
+                  '${widget.contingent.contingentCode}'
+                  '${ParticipationController().suffixFor(widget.participation)}',
               isExpanded: _contingentExpanded,
               onToggle:
                   () => setState(

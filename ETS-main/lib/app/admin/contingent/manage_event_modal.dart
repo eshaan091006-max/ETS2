@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:malhar_ets/constants/app_colors.dart';
+import 'package:malhar_ets/helpers/widgets.dart';
 import 'package:malhar_ets/shared/controllers/event_controller.dart';
 import 'package:malhar_ets/shared/controllers/participation_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
@@ -71,29 +73,27 @@ class AddEventSheet extends StatefulWidget {
 }
 
 class AddEventSheetState extends State<AddEventSheet> {
-  late List<bool> _selected;
+  late List<int> _counts;
 
   @override
   void initState() {
     super.initState();
-    _selected = List<bool>.filled(widget.events.length, false);
+    _counts = List<int>.filled(widget.events.length, 0);
   }
 
   void _handleSubmit() async {
-    final selectedIndexes = <int>[];
-    for (int i = 0; i < _selected.length; i++) {
-      if (_selected[i]) selectedIndexes.add(i);
+    List<Participation> participations = [];
+    for (int i = 0; i < _counts.length; i++) {
+      for (int c = 0; c < _counts[i]; c++) {
+        participations.add(
+          Participation(
+            participationId: -1,
+            contingentId: widget.contingent.contingentId,
+            eventId: widget.events[i].eventId,
+          ),
+        );
+      }
     }
-    List<Participation> participations =
-        selectedIndexes
-            .map(
-              (i) => Participation(
-                participationId: -1,
-                contingentId: widget.contingent.contingentId,
-                eventId: widget.events[i].eventId,
-              ),
-            )
-            .toList();
             
     if (participations.isEmpty) {
       AppFeedback.showError(context, "Please select at least one event.");
@@ -131,6 +131,11 @@ class AddEventSheetState extends State<AddEventSheet> {
               itemCount: widget.events.length,
               itemBuilder: (context, index) {
                 Event e = widget.events[index];
+                final countToAdd = _counts[index];
+                final existingEntries = ParticipationController().entryCountFor(
+                  widget.contingent.contingentId,
+                  e.eventId,
+                );
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
@@ -139,14 +144,72 @@ class AddEventSheetState extends State<AddEventSheet> {
                       Expanded(
                         child: ListTile(
                           leading: Text("${e.eventId}"),
-                          title: Text("${e.eventName} "),
-                          trailing: Checkbox(
-                            value: _selected[index],
-                            onChanged: (value) {
-                              setState(() {
-                                _selected[index] = value ?? false;
-                              });
-                            },
+                          title: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  e.eventName,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (existingEntries > 0) ...[
+                                const SizedBox(width: 8),
+                                buildEntryCountBadge(existingEntries),
+                              ],
+                            ],
+                          ),
+                          subtitle: countToAdd > 0
+                              ? Text(
+                                  'Adding $countToAdd sub-contingent(s) (${widget.contingent.contingentCode} ${existingEntries + 1}${countToAdd > 1 ? ', ${widget.contingent.contingentCode} ${existingEntries + 2}...' : ''})',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.accent,
+                                  ),
+                                )
+                              : null,
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (countToAdd > 0)
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.remove_circle_outline,
+                                    color: AppColors.error,
+                                    size: 20,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _counts[index] = countToAdd - 1;
+                                    });
+                                  },
+                                ),
+                              if (countToAdd > 0)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                  child: Text(
+                                    '$countToAdd',
+                                    style: TextStyle(
+                                      color: AppColors.textWhite,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                              IconButton(
+                                icon: Icon(
+                                  countToAdd == 0
+                                      ? Icons.add_circle_outline
+                                      : Icons.add_circle,
+                                  color: AppColors.primary,
+                                  size: 22,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _counts[index] = countToAdd + 1;
+                                  });
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -295,7 +358,9 @@ class _UpdateEventSheetState extends State<UpdateEventSheet> {
                         },
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          labelText: "${e.eventId} ${e.eventName}",
+                          labelText:
+                              "${e.eventId} ${e.eventName}"
+                              "${ParticipationController().suffixFor(p)}",
                           border: const OutlineInputBorder(),
                         ),
                       ),

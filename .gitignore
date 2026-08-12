@@ -1,0 +1,30 @@
+# Environment and secret files
+.env
+*.env
+*.env.*
+
+# Logs
+*.log
+hs_err_pid*.log
+replay_pid*.log
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.iml
+
+# Flutter / Dart build & tool files
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+**/build/
+
+# Mac / Windows system files
+.DS_Store
+Thumbs.db
+
+# Credentials
+**/lib/constants/supabase/credentials.dart

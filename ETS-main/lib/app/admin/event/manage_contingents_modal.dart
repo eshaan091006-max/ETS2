@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
+import 'package:malhar_ets/helpers/widgets.dart';
 import 'package:malhar_ets/shared/controllers/contingent_controller.dart';
 import 'package:malhar_ets/shared/controllers/participation_controller.dart';
 import 'package:malhar_ets/shared/models/contingent.dart';
@@ -79,7 +80,7 @@ class AddContingentSheet extends StatefulWidget {
 }
 
 class AddContingentSheetState extends State<AddContingentSheet> {
-  final Set<int> _selectedIds = {};
+  final Map<int, int> _selectedCounts = {};
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -89,23 +90,25 @@ class AddContingentSheetState extends State<AddContingentSheet> {
   }
 
   void _handleSubmit() async {
-    List<Participation> participations =
-        _selectedIds
-            .map(
-              (id) => Participation(
-                participationId: -1,
-                contingentId: id,
-                eventId: widget.event.eventId,
-              ),
-            )
-            .toList();
+    List<Participation> participations = [];
+    _selectedCounts.forEach((id, count) {
+      for (int i = 0; i < count; i++) {
+        participations.add(
+          Participation(
+            participationId: -1,
+            contingentId: id,
+            eventId: widget.event.eventId,
+          ),
+        );
+      }
+    });
             
     if (participations.isEmpty) {
       AppFeedback.showError(context, "Please select at least one contingent.");
       return;
     }
 
-    print("Selected Contingent IDs: $_selectedIds");
+    print("Selected Contingent Counts: $_selectedCounts");
     AppFeedback.showLoading(context, message: "Adding contingents...");
     final success = await ParticipationController().createMultipleParticipation(
       context,
@@ -186,7 +189,9 @@ class AddContingentSheetState extends State<AddContingentSheet> {
                     itemCount: filteredContingents.length,
                     itemBuilder: (context, index) {
                       Contingent c = filteredContingents[index];
-                      final isChecked = _selectedIds.contains(c.contingentId);
+                      final countToAdd = _selectedCounts[c.contingentId] ?? 0;
+                      final existingEntries = ParticipationController()
+                          .entryCountFor(c.contingentId, widget.event.eventId);
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 6),
                         child: Row(
@@ -197,18 +202,76 @@ class AddContingentSheetState extends State<AddContingentSheet> {
                                 shape: const OutlineInputBorder(),
                                 tileColor: AppColors.tertiary,
                                 titleTextStyle: textStyle,
-                                title: Text("${c.contingentCode} "),
-                                trailing: Checkbox(
-                                  value: isChecked,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value == true) {
-                                        _selectedIds.add(c.contingentId);
-                                      } else {
-                                        _selectedIds.remove(c.contingentId);
-                                      }
-                                    });
-                                  },
+                                title: Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        c.contingentCode,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (existingEntries > 0) ...[
+                                      const SizedBox(width: 8),
+                                      buildEntryCountBadge(existingEntries),
+                                    ],
+                                  ],
+                                ),
+                                subtitle: countToAdd > 0
+                                    ? Text(
+                                        'Adding $countToAdd sub-contingent(s) (${c.contingentCode} ${existingEntries + 1}${countToAdd > 1 ? ', ${c.contingentCode} ${existingEntries + 2}...' : ''})',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.accent,
+                                        ),
+                                      )
+                                    : null,
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (countToAdd > 0)
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.remove_circle_outline,
+                                          color: AppColors.error,
+                                          size: 20,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            if (countToAdd == 1) {
+                                              _selectedCounts.remove(c.contingentId);
+                                            } else {
+                                              _selectedCounts[c.contingentId] = countToAdd - 1;
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    if (countToAdd > 0)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                        child: Text(
+                                          '$countToAdd',
+                                          style: TextStyle(
+                                            color: AppColors.textWhite,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    IconButton(
+                                      icon: Icon(
+                                        countToAdd == 0
+                                            ? Icons.add_circle_outline
+                                            : Icons.add_circle,
+                                        color: AppColors.primary,
+                                        size: 22,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _selectedCounts[c.contingentId] = countToAdd + 1;
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -342,7 +405,9 @@ class _UpdateContingentSheetState extends State<UpdateContingentSheet> {
                         },
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          labelText: c.contingentCode,
+                          labelText:
+                              '${c.contingentCode}'
+                              '${ParticipationController().suffixFor(p)}',
                           labelStyle: textStyle,
 
                           border: const OutlineInputBorder(),
