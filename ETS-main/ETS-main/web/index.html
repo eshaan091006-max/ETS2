@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="malhar_ets">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <title>Malhar 26</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- =====================================================
+       SCREENSHOT PROTECTION
+       Blocks Print Screen, Win+Shift+S (Snipping Tool),
+       Ctrl+P (print), and print media queries.
+       Similar to Netflix's content protection approach.
+  ====================================================== -->
+  <style>
+    /* Block all print output — Print Screen on many browsers
+       captures what would be printed, so this blacks it out */
+    @media print {
+      html, body, * {
+        display: none !important;
+        visibility: hidden !important;
+        background: #000 !important;
+        color: #000 !important;
+      }
+    }
+
+    /* Prevent text/image selection across the entire page */
+    html, body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      /* Disable drag-and-drop of images */
+      -webkit-user-drag: none;
+    }
+
+    /* Screenshot blackout overlay — shown on key detection */
+    #__screenshot-shield {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647; /* max z-index */
+      background: #000;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Screenshot shield overlay -->
+  <div id="__screenshot-shield" aria-hidden="true"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var shield = document.getElementById('__screenshot-shield');
+      var BLACKOUT_MS = 2500; // how long to black screen after detection
+      var _timer = null;
+
+      function showShield() {
+        shield.style.display = 'block';
+        clearTimeout(_timer);
+        _timer = setTimeout(hideShield, BLACKOUT_MS);
+      }
+
+      function hideShield() {
+        shield.style.display = 'none';
+      }
+
+      // ── Key-based detection ──────────────────────────────────────
+      document.addEventListener('keydown', function (e) {
+        var key = e.key || '';
+        var code = e.code || '';
+
+        // PrintScreen key
+        if (key === 'PrintScreen' || code === 'PrintScreen') {
+          e.preventDefault();
+          showShield();
+          return;
+        }
+
+        // Win+Shift+S  (Windows Snipping Tool)
+        if (e.metaKey && e.shiftKey && (key === 's' || key === 'S')) {
+          e.preventDefault();
+          showShield();
+          return;
+        }
+
+        // Ctrl+Shift+S (some capture tools)
+        if (e.ctrlKey && e.shiftKey && (key === 's' || key === 'S')) {
+          e.preventDefault();
+          showShield();
+          return;
+        }
+
+        // Ctrl+P — print dialog (another capture path)
+        if (e.ctrlKey && (key === 'p' || key === 'P')) {
+          e.preventDefault();
+          showShield();
+          return;
+        }
+
+        // F12 — block DevTools to discourage element inspection / canvas capture
+        if (key === 'F12' || code === 'F12') {
+          e.preventDefault();
+          return;
+        }
+      }, true /* capture phase */);
+
+      // ── Clipboard poisoning on PrintScreen (keyup) ───────────────
+      // PrintScreen fires after keyup; overwrite clipboard immediately.
+      document.addEventListener('keyup', function (e) {
+        if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+          // Write a black pixel as a data URL to the clipboard
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText('').catch(function () {});
+          }
+          showShield();
+        }
+      }, true);
+
+      // ── Right-click disable ──────────────────────────────────────
+      document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+      }, true);
+
+      // ── Drag disable ─────────────────────────────────────────────
+      document.addEventListener('dragstart', function (e) {
+        e.preventDefault();
+      }, true);
+
+      // ── Touch and Gesture Inhibits (Mobile Specific) ─────────────
+      // Multi-finger gestures or long presses are often used to trigger mobile screenshots/drawers
+      document.addEventListener('touchstart', function (e) {
+        if (e.touches && e.touches.length > 2) {
+          // 3-finger screenshot gesture on Android/iOS (e.g. OnePlus, Xiaomi)
+          showShield();
+        }
+      }, { passive: true });
+
+      // ── Visibility & Window State Focus Detection ───────────────
+      // On mobile, taking a screenshot or pulling down control center/notification panel
+      // causes the browser window to lose focus or become hidden.
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          showShield();
+        } else {
+          // Give a short delay then hide, so returning users see content
+          setTimeout(hideShield, 500);
+        }
+      });
+
+      // Window focus and blur handlers
+      window.addEventListener('blur', function () {
+        // Triggered when screenshot utility overlays, notification drawer, or app switcher opens
+        showShield();
+      });
+
+      window.addEventListener('focus', function () {
+        setTimeout(hideShield, 500);
+      });
+
+      window.addEventListener('pagehide', function () {
+        showShield();
+      });
+
+      // ── Detect beforeprint event ─────────────────────────────────
+      window.addEventListener('beforeprint', function () {
+        showShield();
+      });
+
+    })();
+  </script>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+
+</html>
