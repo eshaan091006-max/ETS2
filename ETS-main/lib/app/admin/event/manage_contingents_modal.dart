@@ -8,6 +8,7 @@ import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:malhar_ets/utils/marks_format.dart';
 
 final titleTextStyle = GoogleFonts.readexPro(fontSize: 18);
 final textStyle = GoogleFonts.poppins(color: AppColors.primary);
@@ -330,9 +331,9 @@ class _UpdateContingentSheetState extends State<UpdateContingentSheet> {
   void initState() {
     super.initState();
     _fields = List.generate(widget.participation.length, (index) {
-      final int originalMarks = widget.participation[index].marksScored;
+      final double originalMarks = widget.participation[index].marksScored;
       final controller = TextEditingController(
-        text: '${originalMarks == -1 ? 0 : originalMarks}',
+        text: originalMarks == -1 ? '0' : formatMarks(originalMarks),
       );
       return controller;
     });
@@ -351,7 +352,7 @@ class _UpdateContingentSheetState extends State<UpdateContingentSheet> {
       // Access the text values using _fields[index].text
       List<Participation> participations = [];
       for (int i = 0; i < _fields.length; i++) {
-        int marks = int.parse(_fields[i].text);
+        double marks = double.parse(_fields[i].text);
         Participation p = widget.participation[i];
         p.marksScored = marks;
         participations.add(p);
@@ -397,13 +398,14 @@ class _UpdateContingentSheetState extends State<UpdateContingentSheet> {
                         style: textStyle,
                         controller: _fields[index],
                         validator: (value) {
-                          final val = int.tryParse(value ?? '');
+                          final val = double.tryParse(value ?? '');
                           if (val == null || val < -1) {
                             return "Marks must be a number!";
                           }
                           return null;
                         },
-                        keyboardType: TextInputType.number,
+                        keyboardType: marksInputType,
+                        inputFormatters: marksInputFormatters,
                         decoration: InputDecoration(
                           labelText:
                               '${c.contingentCode}'

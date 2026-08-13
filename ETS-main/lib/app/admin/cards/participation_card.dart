@@ -41,14 +41,8 @@ class _ParticipationCardState extends State<ParticipationCard> {
 
   @override
   Widget build(BuildContext context) {
-    final String marks =
-        widget.participation.marksScored == -1
-            ? "-"
-            : widget.participation.marksScored.toString();
-    final String highest =
-        widget.event.highestMarks == -1
-            ? "-"
-            : widget.event.highestMarks.toString();
+    final String marks = widget.participation.marksDisplay;
+    final String highest = widget.event.highestMarksDisplay;
 
     return NeonContainer(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

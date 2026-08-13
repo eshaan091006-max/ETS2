@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:intl/intl.dart';
+import 'package:malhar_ets/utils/marks_format.dart';
 
 List<Event> eventFromJson(String str) =>
     List<Event>.from(json.decode(str).map((x) => Event.fromJson(x)));
@@ -11,7 +12,7 @@ String eventToJson(List<Event> data) =>
 class Event {
   int eventId;
   String eventName;
-  int highestMarks;
+  double highestMarks;
   DateTime dateTime;
   int departmentId;
   int eventType;
@@ -47,7 +48,7 @@ class Event {
     return Event(
       eventId: json['event_id'],
       eventName: json['event_name'].toString(),
-      highestMarks: json['highest_marks'] ?? -1,
+      highestMarks: (json['highest_marks'] as num?)?.toDouble() ?? -1,
       dateTime: parsedDateTime,
       departmentId: json['department_id'] ?? -1,
       eventType: json['event_type'] ?? 0,
@@ -80,6 +81,9 @@ class Event {
     "elims_type": elimsType,
     "collab_dept_ids": collabDeptIds,
   };
+
+  /// Highest marks as shown to users: a dash when unset, no trailing ".0".
+  String get highestMarksDisplay => formatMarks(highestMarks);
 
   String get dateString =>
       (dateTime.year == 2006 && dateTime.month == 2 && dateTime.day == 10)

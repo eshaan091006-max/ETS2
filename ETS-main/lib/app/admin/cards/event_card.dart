@@ -163,7 +163,7 @@ class _EventCardState extends State<EventCard> {
               "Highest Marks",
               event.highestMarks == -1
                   ? "Not Set"
-                  : event.highestMarks.toString(),
+                  : event.highestMarksDisplay,
             ),
             _buildDetailRow(
               "Format / Elims",

@@ -8,6 +8,7 @@ import 'package:malhar_ets/shared/controllers/page_refresh_controller.dart';
 import 'package:malhar_ets/shared/models/audit_log.dart';
 import 'package:malhar_ets/constants/app_colors.dart';
 import 'package:malhar_ets/helpers/ambient_glow_background.dart';
+import 'package:malhar_ets/utils/marks_format.dart';
 
 class AnalyticsPage extends StatefulWidget {
   const AnalyticsPage({Key? key}) : super(key: key);
@@ -320,16 +321,17 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     }
 
     if (log.action == 'INSERT') {
-      final rawMarks = data['marks_scored'] ?? 0;
-      final marks = rawMarks == -1 ? 0 : rawMarks;
+      final num rawMarks = (data['marks_scored'] as num?) ?? 0;
+      final marks = formatMarks(rawMarks == -1 ? 0 : rawMarks);
       return '$contingentCode registered for $eventName with score $marks';
     } else if (log.action == 'UPDATE') {
-      final rawOldMarks = log.oldData?['marks_scored'] ?? -1;
-      final rawNewMarks = log.newData?['marks_scored'] ?? -1;
-      final oldMarks = rawOldMarks == -1 ? 0 : rawOldMarks;
-      final newMarks = rawNewMarks == -1 ? 0 : rawNewMarks;
+      final num rawOldMarks = (log.oldData?['marks_scored'] as num?) ?? -1;
+      final num rawNewMarks = (log.newData?['marks_scored'] as num?) ?? -1;
+      final num oldMarks = rawOldMarks == -1 ? 0 : rawOldMarks;
+      final num newMarks = rawNewMarks == -1 ? 0 : rawNewMarks;
       if (oldMarks != newMarks) {
-        return '$contingentCode score in $eventName changed from $oldMarks to $newMarks';
+        return '$contingentCode score in $eventName changed from '
+            '${formatMarks(oldMarks)} to ${formatMarks(newMarks)}';
       }
       return '$contingentCode entry in $eventName updated';
     } else if (log.action == 'DELETE') {

@@ -20,6 +20,7 @@ import 'package:file_saver/file_saver.dart';
 import 'dart:typed_data';
 import 'package:malhar_ets/helpers/page_transitions.dart';
 import 'package:malhar_ets/app/admin/analytics/analytics_page.dart';
+import 'package:malhar_ets/utils/marks_format.dart';
 
 class ParticipationManagementPage extends StatefulWidget {
   const ParticipationManagementPage({super.key});
@@ -158,7 +159,7 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
         event.eventName,
         entryNumber == 0 ? 1 : entryNumber,
         dept?.name ?? '',
-        p.marksScored,
+        formatMarksNumeric(p.marksScored),
         isMarked
       ]);
     }
@@ -357,14 +358,23 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
           grouped.putIfAbsent(p.contingentId, () => []).add(p);
         }
 
-        // Apply search filter on grouped contingents
+        // Apply search filter on the events inside each contingent's group, so
+        // a query narrows every card down to the matching events and drops the
+        // contingents that never entered them.
         final query = _searchController.text.trim().toLowerCase();
         final Map<int, List<Participation>> searchedGrouped = {};
         for (var entry in grouped.entries) {
-          final contingent = _contingentController.getContingentById(entry.key);
-          final code = contingent?.contingentCode.toLowerCase() ?? '';
-          if (code.contains(query)) {
+          if (query.isEmpty) {
             searchedGrouped[entry.key] = entry.value;
+            continue;
+          }
+          final matches = entry.value.where((p) {
+            final eventName =
+                EventController().getEventById(p.eventId)?.eventName ?? '';
+            return eventName.toLowerCase().contains(query);
+          }).toList();
+          if (matches.isNotEmpty) {
+            searchedGrouped[entry.key] = matches;
           }
         }
 
@@ -378,7 +388,7 @@ class _EventManagementPageState extends State<ParticipationManagementPage> {
                   Expanded(
                     child: GlowingSearchField(
                       controller: _searchController,
-                      hintText: 'Search by Contingent Code...',
+                      hintText: 'Search by Event Name...',
                       onChanged: (text) {
                         setState(() {});
                       },

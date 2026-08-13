@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ets-web",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": [
+        "-NoProfile",
+        "-Command",
+        "Set-Location 'C:\\Users\\Eshunned\\Projects\\ETS-main\\ETS-main'; & 'C:\\Users\\Eshunned\\flutter\\bin\\flutter.bat' run -d web-server --web-port 8080 --web-hostname 127.0.0.1"
+      ],
+      "port": 8080
+    }
+  ]
+}

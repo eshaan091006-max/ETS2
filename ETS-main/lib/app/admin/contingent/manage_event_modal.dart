@@ -7,6 +7,7 @@ import 'package:malhar_ets/shared/models/contingent.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:malhar_ets/utils/marks_format.dart';
 
 void showUpdateEventBottomSheet(
   BuildContext context,
@@ -269,9 +270,9 @@ class _UpdateEventSheetState extends State<UpdateEventSheet> {
     _fields = List.generate(
       widget.participation.length,
       (index) {
-        final int originalMarks = widget.participation[index].marksScored;
+        final double originalMarks = widget.participation[index].marksScored;
         return TextEditingController(
-          text: '${originalMarks == -1 ? 0 : originalMarks}',
+          text: originalMarks == -1 ? '0' : formatMarks(originalMarks),
         );
       },
     );
@@ -289,7 +290,7 @@ class _UpdateEventSheetState extends State<UpdateEventSheet> {
     if (_formKey.currentState!.validate()) {
       bool allSucceeded = true;
       for (int i = 0; i < _fields.length; i++) {
-        int marks = int.parse(_fields[i].text);
+        double marks = double.parse(_fields[i].text);
         Participation p = widget.participation[i];
         if (p.marksScored != marks) {
            p.marksScored = marks;
@@ -350,13 +351,14 @@ class _UpdateEventSheetState extends State<UpdateEventSheet> {
                       child: TextFormField(
                         controller: _fields[index],
                         validator: (value) {
-                          final val = int.tryParse(value ?? '');
+                          final val = double.tryParse(value ?? '');
                           if (val == null || val < -1) {
                             return "Marks must be a number!";
                           }
                           return null;
                         },
-                        keyboardType: TextInputType.number,
+                        keyboardType: marksInputType,
+                        inputFormatters: marksInputFormatters,
                         decoration: InputDecoration(
                           labelText:
                               "${e.eventId} ${e.eventName}"

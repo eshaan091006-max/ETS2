@@ -180,7 +180,7 @@ class EventController {
             .where((p) => p.eventId == eventId)
             .toList();
     try {
-      int maxMarks = participations.first.marksScored;
+      double maxMarks = participations.first.marksScored;
       for (Participation p in participations) {
         maxMarks = (p.marksScored > maxMarks) ? p.marksScored : maxMarks;
       }

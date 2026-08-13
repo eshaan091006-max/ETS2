@@ -9,6 +9,7 @@ import 'package:malhar_ets/shared/models/department.dart';
 import 'package:malhar_ets/shared/models/event.dart';
 import 'package:malhar_ets/shared/models/form_link.dart';
 import 'package:malhar_ets/utils/app_feedback.dart';
+import 'package:malhar_ets/utils/marks_format.dart';
 import 'package:malhar_ets/utils/link_validator.dart';
 
 Future<void> showEventModal(
@@ -28,7 +29,7 @@ Future<void> showEventModal(
   final marksController = TextEditingController(
     text:
         event?.highestMarks != null && event!.highestMarks != -1
-            ? event.highestMarks.toString()
+            ? formatMarks(event.highestMarks)
             : '',
   );
 
@@ -84,7 +85,7 @@ Future<void> showEventModal(
                     buildTextField(
                       marksController,
                       'Highest Marks (Optional)',
-                      inputType: TextInputType.number,
+                      inputType: marksInputType,
                     ),
                     const SizedBox(height: 12),
                     buildDropdown<Department>(
@@ -243,7 +244,7 @@ Future<void> showEventModal(
                     }
 
                     final highestMarks =
-                        int.tryParse(marksController.text.trim()) ?? -1;
+                        double.tryParse(marksController.text.trim()) ?? -1;
 
                     List<FormLink> finalLinks = [];
                     for (var c in linkControllers) {

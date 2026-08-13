@@ -315,7 +315,7 @@ class ParticipationController {
     Event event,
   ) async {
     try {
-      int maxMarks = participations.first.marksScored;
+      double maxMarks = participations.first.marksScored;
       for (Participation p in participations) {
         maxMarks = (p.marksScored > maxMarks) ? p.marksScored : maxMarks;
         final bool updated = await updateParticipation(context, p, displayMsg: false);

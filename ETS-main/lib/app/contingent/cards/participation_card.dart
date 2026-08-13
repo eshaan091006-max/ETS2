@@ -4,6 +4,7 @@ import 'package:malhar_ets/helpers/neon_container.dart';
 import 'package:malhar_ets/helpers/widgets.dart';
 import 'package:malhar_ets/shared/models/participation.dart';
 import 'package:malhar_ets/shared/models/event.dart';
+import 'package:malhar_ets/utils/marks_format.dart';
 
 class ParticipationCard extends StatelessWidget {
   final Participation participation;
@@ -79,7 +80,7 @@ class ParticipationCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMetric(String label, int value, Color color) {
+  Widget _buildMetric(String label, double value, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -99,7 +100,7 @@ class ParticipationCard extends StatelessWidget {
             ),
           ),
           Text(
-            (value == -1) ? '-' : '$value',
+            formatMarks(value),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

@@ -79,14 +79,8 @@ class _GroupedParticipationCardState extends State<GroupedParticipationCard> {
     final Event currentEvent = eventController.getEventById(_selectedParticipation.eventId) ??
         Event(dateTime: DateTime.now());
 
-    final String marks =
-        _selectedParticipation.marksScored == -1
-            ? "-"
-            : _selectedParticipation.marksScored.toString();
-    final String highest =
-        currentEvent.highestMarks == -1
-            ? "-"
-            : currentEvent.highestMarks.toString();
+    final String marks = _selectedParticipation.marksDisplay;
+    final String highest = currentEvent.highestMarksDisplay;
 
     return NeonContainer(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
