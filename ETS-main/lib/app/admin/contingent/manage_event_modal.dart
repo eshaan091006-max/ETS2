@@ -351,8 +351,7 @@ class _UpdateEventSheetState extends State<UpdateEventSheet> {
                       child: TextFormField(
                         controller: _fields[index],
                         validator: (value) {
-                          final val = double.tryParse(value ?? '');
-                          if (val == null || val < -1) {
+                          if (double.tryParse(value ?? '') == null) {
                             return "Marks must be a number!";
                           }
                           return null;

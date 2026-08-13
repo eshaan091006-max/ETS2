@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 /// Marks are stored as doubles so half-points ("8.5") can be awarded, but most
 /// scores are still whole numbers and must not read as "8.0" in the UI.
 ///
-/// A value of -1 means "not marked yet" and renders as a dash.
+/// Marks may be negative (penalties), so -1 is the one score that cannot be
+/// awarded: it is the reserved "not marked yet" sentinel and renders as a dash.
 String formatMarks(num marks) {
   if (marks == -1) return '-';
   final double value = marks.toDouble();
